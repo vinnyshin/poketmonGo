@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "__availability": "c",
+        "algorithm": "c",
+        "array": "c",
+        "chrono": "c",
+        "memory": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "bitset": "c",
+        "string_view": "c",
+        "random": "c",
+        "functional": "c",
+        "iosfwd": "c",
+        "limits": "c",
+        "streambuf": "c",
+        "*.tcc": "c"
+    }
+}
