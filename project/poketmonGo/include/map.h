@@ -5,46 +5,72 @@
 #include <unistd.h>
 #include <termios.h>
 
-#define KEY_UP 65
-#define KEY_DOWN 66
-#define KEY_RIGHT 67
-#define KEY_LEFT 68
-
-#define MAX_X 48
+#define MAX_X 100
 #define MAX_Y 15
 
-#define COMMAND_X 50
-#define COMMAND_Y 25
+#define MAP_MAX_X 30
+#define MAP_MAX_Y 15
 
-#define POS_X MAX_X + 2
-#define POS_Y 7
+#define M_BOX_X_START 35
+#define M_BOX_X_END 60
+
+#define M_BOX_Y_START 0
+#define M_BOX_Y_END 6
+
+#define MSG_X_START (M_BOX_X_START + 2)
+#define MSG_Y_START (M_BOX_Y_START + 3)
+
+#define P_MSG_X MSG_X_START
+#define P_MSG_Y (MSG_Y_START + 5)
+
+#define P_GPS_MSG_X MSG_X_START
+#define P_GPS_MSG_Y (MSG_Y_START + 6)
+
+#define KEY_UP 65
+#define KEY_DOWN 66
+#define KEY_LEFT 68
+#define KEY_RIGHT 67
+
 #define MONSTER_NUM 3
 
-typedef struct Position {
+typedef struct unitP
+{
 	int x;
 	int y;
-	char name[100];
 	char mark;
-} Position;
+	char name[100];
+} unitP;
 
-void initMap();
+void gotoxy(int, int);
+
+void printMonster();
+
+void cursorReset();
+
+void printXY(int x, int y);
+
+void printGPSXY(int x, int y);
+void printGameMsg(char *str);
 void gotoxy(int x, int y);
-void printPosition();
-void clearPosition();
-int is_monster();
-void movePosition(int x, int y);
+void clearGrid();
+
+void clear();
+void makeMsgBox();
+
+void makeGrid();
+
+void printCursor();
+void clearCursor();
+void setCursorPosition(int x, int y);
+void moveCursorXY(int x, int y);
+int didEncounterMonster();
+
+void move_R();
+void move_L();
 void move_UP();
 void move_DOWN();
-void move_RIGHT();
-void move_LEFT();
-void setPosition(int x, int y);
-void make_grid();	
-void clear();
-void print_message(char* s);
-void print_monsters();
-void print_x_y(int x, int y);
-void print_GPS(int x, int y);
-int getch();	
-void moveCursor(int key); 
+int getch();
+void moveCursor(int key);
 
+void initMap();
 #endif

@@ -1,7 +1,7 @@
 CROSS=
 CC=$(CROSS)gcc
-EXE=run
-DEFINES=#-DDEBUG
+EXE=poket
+DEFINES=#-DFILE_MODE
 CFLAGS= -I./include $(DEFINES)
 LDFLAGS= -lpthread
 
@@ -17,7 +17,7 @@ $(EXE) : $(OBJ)
 
 clean :
 	rm *.o
-	rm run
+	rm $(EXE)
 
 good :
 	echo good

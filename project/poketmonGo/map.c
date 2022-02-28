@@ -1,199 +1,229 @@
 #include "map.h"
 
-Position p;
-Position monster[MONSTER_NUM] = {{3, 3, "PIKACHU", '$'}, {7, 7, "RAICHU", '#'}, {10, 10, "TTOGAS", '&' }};
+unitP monster[MONSTER_NUM] = {{3,3,'@',"피카추"},{10,7,'#',"잠만보"},{20,10,'%',"끝판왕"}};
 
-void initMap() {
+unitP cursor;
+
+void initMap(){
 	clear();
-	make_grid();
-	print_message("Receiving GPS signal");
-	setPosition(MAX_X / 2, MAX_Y / 2);
-	print_monsters();
+	makeGrid();
+	makeMsgBox();
+	printGameMsg("GPS 정보 수신중");
+	printMonster();
+	printXY(MAP_MAX_X/2,MAP_MAX_Y/2);
+	printGPSXY(99999,9999);
+	setCursorPosition(MAP_MAX_X/2,MAP_MAX_Y/2);
+	
 
-	while (1) {
-		moveCursor(getch());
-	}
-
-	gotoxy(COMMAND_X, COMMAND_Y);
 }
 
-void gotoxy(int x, int y) {
+void printMonster(){
+
+	for(int i =0; i < MONSTER_NUM; i++){
+		gotoxy(monster[i].x,monster[i].y);
+		printf("%c",monster[i].mark);
+	}
+
+		fflush(stdin);
+}
+
+void cursorReset(){
+	gotoxy(MAX_X,MAX_Y);
+}
+
+void printXY(int x, int y){
+	gotoxy(P_MSG_X,P_MSG_Y);
+	printf("               ");
+	gotoxy(P_MSG_X,P_MSG_Y);
+	printf("[%d][%d]",x,y);
+	cursorReset();
+}
+
+void printGPSXY(int x, int y){
+	gotoxy(P_GPS_MSG_X,P_GPS_MSG_Y);
+	printf("               ");
+	gotoxy(P_GPS_MSG_X,P_GPS_MSG_Y);
+	printf("[%d][%d]",x,y);
+	cursorReset();
+}
+
+void printGameMsg(char * str){
+	gotoxy(MSG_X_START,MSG_Y_START);
+	printf("               ");
+	gotoxy(MSG_X_START,MSG_Y_START);
+	printf("%s",str);
+	cursorReset();
+}
+
+void gotoxy(int x, int y){
+
 	printf("\033[%d;%df",y,x);
 	fflush(stdout);
 }
 
-void printPosition() {
-	gotoxy(p.x, p.y);
+void clearGrid(){
+
+	int x=2;
+	int y=2;
+
+	for(x = 2; x < MAP_MAX_X-1 ; x++){
+		for(y =2; y < MAP_MAX_Y-1 ; y++){
+			gotoxy(x,y);
+			printf(" ");
+		}
+	}
+}
+
+void clear(){
+
+	int x=0;
+	int y=0;
+
+	for(x = 0; x < MAX_X ; x++){
+		for(y =0; y < MAX_Y ; y++){
+			gotoxy(x,y);
+			printf(" ");
+		}
+	}
+}
+
+void makeMsgBox(){
+
+	int x=0;
+	int y=0;
+
+	for(y = M_BOX_Y_START ; y < M_BOX_Y_END ; y++){
+		for(x = M_BOX_X_START; x < M_BOX_X_END ; x++){
+			gotoxy(x,y);
+			if(y==0){
+			  printf("=");
+			}
+			else if(y==(M_BOX_Y_END-1)){
+			  printf("=");
+			}
+			else if(x==M_BOX_X_START){
+			  printf("|");
+			}
+			else if(x==(M_BOX_X_END-1)){
+			  printf("|");
+			}
+		}
+	}
+
+	cursorReset();
+
+}
+
+void makeGrid(){
+
+	int x=0;
+	int y=0;
+
+	for(y = 0; y < MAP_MAX_Y ; y++){
+		for(x =0; x < MAP_MAX_X ; x++){
+			gotoxy(x,y);
+			if(y==0){
+			  printf("=");
+			}
+			else if(y==(MAP_MAX_Y-1)){
+			  printf("=");
+			}
+			else if(x==0){
+			  printf("|");
+			}
+			else if(x==(MAP_MAX_X-1)){
+			  printf("|");
+			}
+		}
+	}
+}
+
+void printCursor(){
+	gotoxy(cursor.x,cursor.y);
 	printf("*");
+	printXY(cursor.x,cursor.y);
 	fflush(stdout);
 }
 
-void clearPosition() {
-	gotoxy(p.x, p.y);
+void clearCursor(){
+	gotoxy(cursor.x,cursor.y);
 	printf(" ");
 	fflush(stdout);
 }
 
-int is_monster() {
-	char msg[100];
-
-	for(int i = 0; i < MONSTER_NUM; ++i) {
-		if((monster[i].x == p.x) && (monster[i].y == p.y)) {
-			sprintf(msg, "%s encountered", monster[i].name);
-			print_message(msg);
-			return 0;
-		}
-	}
+void setCursorPosition(int x, int y){
+	cursor.x =x;
+	cursor.y =y;
+	printCursor();
 }
 
-void movePosition(int x, int y) {
-	clearPosition();
-	p.x = p.x + x;
-	p.y = p.y + (-y);
-	is_monster();
-	printPosition();
+void moveCursorXY(int x, int y){
+	clearCursor();
+	cursor.x = cursor.x + x;
+	cursor.y = cursor.y + (-y);
+	didEncounterMonster();
+	printCursor();
 	fflush(stdout);
 }
 
-void move_UP() {
-	movePosition(0, 1);
-}
-
-void move_DOWN() {
-	movePosition(0, -1);
-}
-
-void move_RIGHT() {
-	movePosition(1, 0);
-}
-
-void move_LEFT() {
-	movePosition(-1, 0);
-}
-
-void setPosition(int x, int y) {
-	p.x = x;
-	p.y = y;
-	printPosition();
-}
-
-void make_grid() {
-	int i;
-
-	// Drawing left box
-	for (i = 1; i <= MAX_Y; ++i) {
-		gotoxy(1, i);
-		printf("|");
-	}
-
-	for (i = 2; i < MAX_X; ++i) {
-		gotoxy(i, 1);
-		printf("=");
-	}
-
-	for(i = 1; i <= MAX_Y; ++i) {
-		gotoxy(MAX_X, i);
-		printf("|");
-	}
-	
-	for(i = 2; i < MAX_X; ++i) {
-		gotoxy(i, MAX_Y);
-		printf("=");
-	}
-	
-	// Drawing right box
-	for (i = 1; i <= MAX_Y; ++i) {
-		gotoxy(MAX_X + 1, i);
-		printf("|");
-	}
-	
-	for (i = MAX_X + 2; i < 2 * MAX_X; ++i) {
-		gotoxy(i, 1);
-		printf("=");
-	}
-
-	for(i = 1; i <= MAX_Y; ++i) {
-		gotoxy(2 * MAX_X, i);
-		printf("|");
-	}
-
-	for(i = MAX_X + 2; i < 2 * MAX_X; ++i) {
-		gotoxy(i, MAX_Y);
-		printf("=");
-	}
-}
-
-void clear() {
-	for(int i = 1; i <= 2 * MAX_X; ++i) {
-		for(int j = 1; j <= MAX_Y; ++j) {
-			gotoxy(j,i);
-			printf(" "); 
+int didEncounterMonster(){
+	char msg[200]="";
+	for(int i = 0; i < MONSTER_NUM ; i++){
+		if((monster[i].x == cursor.x) && (monster[i].y == cursor.y)){
+			sprintf(msg,"%s가 나타났다",monster[i].name);
+			printGameMsg(msg);
+			return 1;
 		}
 	}
+}	
+
+void move_R(){
+	moveCursorXY(1,0);
 }
 
-void print_message(char* s) {
-	printf("\033[%d;%df",2, MAX_X + 2);
-	fflush(stdout);
-	printf("%s\n", s);
+void move_L(){
+	moveCursorXY(-1,0);
 }
 
-void print_monsters() {
-	Position temp;
-	for(int i = 0; i < MONSTER_NUM; ++i) {
-		temp = monster[i];
-		gotoxy(temp.x, temp.y);
-		printf("%c", temp.mark);
-	}
+void move_UP(){
+	moveCursorXY(0,1);
 }
 
-void print_x_y(int x, int y) {
-	gotoxy(POS_X, POS_Y);
-	printf("                     ");
-	gotoxy(POS_X, POS_Y);
-	printf("[%d][%d]", x, y);
+void move_DOWN(){
+	moveCursorXY(0,-1);
 }
 
-void print_GPS(int x, int y) {
-	gotoxy(POS_X, POS_Y + 1);
-	printf("                     ");
-	gotoxy(POS_X, POS_Y + 1);
-	printf("[%d][%d]", x, y);
-}
-
-int getch() {
+int getch()
+{
 	int c;
 	struct termios oldattr, newattr;
 
-	tcgetattr(STDIN_FILENO, &oldattr);
+	tcgetattr(STDcursorN_FcursorLENO, &oldattr);           // 현재 터미널 설정 읽음
 	newattr = oldattr;
-	newattr.c_lflag &= ~(ICANON | ECHO);
-	newattr.c_cc[VMIN] = 1;
-	newattr.c_cc[VTIME] = 0;
-	tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
-	c = getchar();
-	tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
+	newattr.c_lflag &= ~(cursorCANON | ECHO);         // CANONcursorCAL과 ECHO 끔
+	newattr.c_cc[VMcursorN] = 1;                      // 최소 입력 문자 수를 1로 설정
+	newattr.c_cc[VTcursorME] = 0;                     // 최소 읽기 대기 시간을 0으로 설정
+	tcsetattr(STDcursorN_FcursorLENO, TCSANOW, &newattr);  // 터미널에 설정 입력
+	c = getchar();                               // 키보드 입력 읽음
+	tcsetattr(STDcursorN_FcursorLENO, TCSANOW, &oldattr);  // 원래의 설정으로 복구
 	return c;
 }
 
-void moveCursor(int key) {
-	switch(key) {
-		case KEY_UP:
+void moveCursor(int key){
+	switch(key){
+		case KEY_UP : 
 			move_UP();
 			break;
-		case KEY_DOWN:
+		case KEY_DOWN : 
 			move_DOWN();
 			break;
-		case KEY_RIGHT:
-			move_RIGHT();
+		case KEY_LEFT : 
+			move_L();
 			break;
-		case KEY_LEFT:
-			move_LEFT();
+		case KEY_RcursorGHT : 
+			move_R();
 			break;
-		default:
+		default :
 			break;
 	}
-	print_x_y(p.x, p.y);
-	print_GPS(3555,3555);
 }
-
